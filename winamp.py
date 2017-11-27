@@ -70,6 +70,7 @@
 import argparse
 import win32api
 import win32gui
+import win32con
 
 # wonder why win32 imports dont define these
 WM_COMMAND = 0x0111
@@ -113,6 +114,9 @@ class winamp:
 
     def usercommand(self, id, data=0):
         return win32api.SendMessage(self.hWinamp, WM_USER, data, id)
+
+    def FilePath(self):
+        return win32api.SendMessage(self.hWinamp, WM_WA_IPC, 0, 3031)
 
     def getVersion(self):
         "returns the version number of winamp"
@@ -168,16 +172,17 @@ class winamp:
         "dumps the current playlist into WINAMPDIR/winamp.m3u"
         return self.usercommand(120)
 
+    
 
-def getTrackList(sPlaylistFilepath):
-    playlistfile = open(sPlaylistFilepath, "r")
-    lines = playlistfile.readlines()
-    playlistfile.close()
-    playlist = []
-    for line in lines:
-        if not line[0] == '#':
-            playlist.append(line[:-1])
-    return playlist
+    def getTrackList(self, sPlaylistFilepath):
+        playlistfile = open(sPlaylistFilepath, "r")
+        lines = playlistfile.readlines()
+        playlistfile.close()
+        playlist = []
+        for line in lines:
+            if not line[0] == '#':
+                playlist.append(line[:-1])
+        return playlist
 
 
 if __name__ == "__main__":
@@ -209,10 +214,10 @@ if __name__ == "__main__":
             # TODO: decrease volume by 10%
             w.command("lowervol")
         elif args.subcommand:
-            print args.subcommand
+            print(args.subcommand)
             # scale volume 0-100 to 0-255
             newvol = float(args.subcommand) * 255 / 100
-            print newvol
+            print(newvol)
             w.setVolume(newvol)
 
     elif args.command:
